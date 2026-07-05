@@ -1,0 +1,180 @@
+@import "./tokens.css";
+@import 'tailwindcss';
+@import 'react-datepicker/dist/react-datepicker.css';
+
+@source "../index.html";
+@source "../src";
+
+@layer components {
+  /* React DatePicker Overrides for Dark Mode & Styling */
+  .react-datepicker-wrapper {
+    @apply w-full;
+  }
+  .react-datepicker__input-container input {
+    @apply w-full;
+  }
+  
+  .react-datepicker {
+    @apply font-sans border-[var(--color-border)] bg-[var(--color-surface)] shadow-[var(--shadow-3)] rounded-xl overflow-hidden;
+    color: var(--color-text-primary);
+  }
+  
+  .react-datepicker__header {
+    @apply bg-[var(--color-surface)] border-b-[var(--color-border)] pt-3 pb-2;
+  }
+  
+  .react-datepicker__current-month, 
+  .react-datepicker-time__header, 
+  .react-datepicker-year-header {
+    @apply text-[var(--color-text-primary)] font-semibold text-sm;
+  }
+  
+  .react-datepicker__day-name {
+    @apply text-[var(--color-text-secondary)] font-medium text-xs;
+  }
+  
+  .react-datepicker__day {
+    @apply text-[var(--color-text-primary)] rounded-lg transition-colors hover:bg-[color-mix(in_srgb,var(--color-text-primary)_10%,transparent)];
+  }
+  
+  .react-datepicker__day--selected, 
+  .react-datepicker__day--in-selecting-range, 
+  .react-datepicker__day--in-range, 
+  .react-datepicker__month-text--selected, 
+  .react-datepicker__month-text--in-selecting-range, 
+  .react-datepicker__month-text--in-range, 
+  .react-datepicker__quarter-text--selected, 
+  .react-datepicker__quarter-text--in-selecting-range, 
+  .react-datepicker__quarter-text--in-range, 
+  .react-datepicker__year-text--selected, 
+  .react-datepicker__year-text--in-selecting-range, 
+  .react-datepicker__year-text--in-range {
+    @apply bg-[var(--color-accent)] text-white hover:bg-[var(--color-accent)] hover:opacity-90;
+  }
+  
+  .react-datepicker__day--keyboard-selected {
+    @apply bg-[color-mix(in_srgb,var(--color-accent)_20%,transparent)] text-[var(--color-accent)];
+  }
+  
+  .react-datepicker__day--outside-month {
+    @apply text-[var(--color-text-secondary)] opacity-50;
+  }
+  
+  .react-datepicker__navigation-icon::before {
+    border-color: var(--color-text-secondary);
+  }
+  
+  .react-datepicker__navigation:hover *::before {
+    border-color: var(--color-text-primary);
+  }
+}
+
+@theme {
+  --color-bg: var(--sys-color-bg);
+  --color-surface: var(--sys-color-surface);
+  --color-border: var(--sys-color-border);
+  --color-text-primary: var(--sys-color-text-primary);
+  --color-text-secondary: var(--sys-color-text-secondary);
+  --color-accent: var(--sys-color-accent);
+  --color-accent-hover: var(--sys-color-accent-hover);
+  --tier-good: var(--sys-tier-good);
+  --tier-ok: var(--sys-tier-ok);
+  --tier-warn: var(--sys-tier-warn);
+  --radius-sm: var(--sys-radius-sm);
+  --radius-md: var(--sys-radius-md);
+  --radius-lg: var(--sys-radius-lg);
+  --shadow-1: var(--sys-shadow-1);
+  --shadow-2: var(--sys-shadow-2);
+  --shadow-3: var(--sys-shadow-3);
+  --font-sans: var(--sys-font-sans);
+  --font-mono: var(--sys-font-mono);
+}
+
+
+body {
+  background-color: var(--sys-color-bg);
+  color: var(--sys-color-text-primary);
+  font-family: var(--sys-font-sans);
+  font-size: 15px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  transition: background-color var(--sys-transition-slow) var(--sys-ease-out),
+              color var(--sys-transition-slow) var(--sys-ease-out);
+}
+
+.font-mono {
+  font-family: var(--sys-font-mono);
+  font-variant-numeric: tabular-nums;
+}
+
+.headline {
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.glass {
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  background-color: var(--sys-glass-bg);
+  border: 1px solid var(--sys-glass-border);
+}
+
+@keyframes skeleton-pulse {
+  0% {
+    opacity: 0.6;
+  }
+  50% {
+    opacity: 0.3;
+  }
+  100% {
+    opacity: 0.6;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  .glass {
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
+}
+
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: var(--color-border);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background-color: var(--color-text-secondary);
+}
+
+@supports not selector(::-webkit-scrollbar) {
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-border) transparent;
+  }
+}
+
+::selection {
+  background-color: var(--color-accent);
+  color: #ffffff;
+}
