@@ -1,8 +1,9 @@
+import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { Settings2, X, Lock, Trash2, Plus } from 'lucide-react'
-import { useServiceCategories, useCreateCategory, useDeleteCategory } from './api'
+import { Settings2, X, Lock, Trash2, Plus, Pencil, Check } from 'lucide-react'
+import { useServiceCategories, useCreateCategory, useDeleteCategory, useUpdateCategory } from './api'
 import { Button } from '../../components/Button'
 
 const categorySchema = z.object({
@@ -17,6 +18,10 @@ export function ManageCategoriesForm({ onClose }: { onClose: () => void }) {
   const { data: categories } = useServiceCategories()
   const createCategory = useCreateCategory()
   const deleteCategory = useDeleteCategory()
+  const updateCategory = useUpdateCategory()
+
+  const [editingId, setEditingId] = useState<string | null>(null)
+  const [editingName, setEditingName] = useState('')
 
   const { register, handleSubmit, reset, formState: { errors } } = useForm<CategoryFormValues>({
     resolver: zodResolver(categorySchema)
@@ -36,6 +41,17 @@ export function ManageCategoriesForm({ onClose }: { onClose: () => void }) {
   const handleDelete = (id: string) => {
     if (window.confirm('Are you sure you want to delete this service category? This will not delete existing logs for this category.')) {
       deleteCategory.mutate(id)
+    }
+  }
+
+  const handleEditSave = (id: string) => {
+    if (editingName.trim()) {
+      updateCategory.mutate({ id, name: editingName.trim() }, {
+        onSuccess: () => {
+          setEditingId(null)
+          setEditingName('')
+        }
+      })
     }
   }
 
@@ -120,28 +136,76 @@ export function ManageCategoriesForm({ onClose }: { onClose: () => void }) {
             <div className="space-y-2">
               {categories?.map(cat => (
                 <div key={cat.id} className="flex items-center justify-between p-3 rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)] hover:border-[var(--color-accent)] transition-colors group">
-                  <div>
-                    <p className="text-sm font-medium text-[var(--color-text-primary)]">{cat.name}</p>
-                    <p className="text-xs text-[var(--color-text-secondary)]">
-                      {cat.default_interval_months && `${cat.default_interval_months} mo`}
-                      {cat.default_interval_months && cat.default_interval_km && ' / '}
-                      {cat.default_interval_km && `${cat.default_interval_km.toLocaleString()} dist`}
-                      {!cat.default_interval_months && !cat.default_interval_km && 'No default interval'}
-                    </p>
-                  </div>
+                  {editingId === cat.id ? (
+                    <div className="flex-1 mr-4">
+                      <input
+                        autoFocus
+                        value={editingName}
+                        onChange={(e) => setEditingName(e.target.value)}
+                        className="w-full px-3 py-1.5 rounded-lg text-sm bg-[var(--color-bg)] border border-[var(--color-accent)] text-[var(--color-text-primary)] outline-none"
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter') handleEditSave(cat.id)
+                          if (e.key === 'Escape') setEditingId(null)
+                        }}
+                      />
+                    </div>
+                  ) : (
+                    <div>
+                      <p className="text-sm font-medium text-[var(--color-text-primary)]">{cat.name}</p>
+                      <p className="text-xs text-[var(--color-text-secondary)]">
+                        {cat.default_interval_months && `${cat.default_interval_months} mo`}
+                        {cat.default_interval_months && cat.default_interval_km && ' / '}
+                        {cat.default_interval_km && `${cat.default_interval_km.toLocaleString()} dist`}
+                        {!cat.default_interval_months && !cat.default_interval_km && 'No default interval'}
+                      </p>
+                    </div>
+                  )}
                   
                   {cat.user_id === null ? (
-                    <div className="p-2 text-[var(--color-text-secondary)] opacity-50" title="System default service (cannot be deleted)">
+                    <div className="p-2 text-[var(--color-text-secondary)] opacity-50" title="System default service (cannot be edited)">
                       <Lock size={16} />
                     </div>
                   ) : (
-                    <button
-                      onClick={() => handleDelete(cat.id)}
-                      className="p-2 rounded-lg text-[var(--color-text-secondary)] hover:text-[var(--tier-warn)] hover:bg-[color-mix(in_srgb,var(--tier-warn)_10%,transparent)] transition-colors opacity-0 group-hover:opacity-100"
-                      title="Delete Service"
-                    >
-                      <Trash2 size={16} />
-                    </button>
+                    <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                      {editingId === cat.id ? (
+                        <>
+                          <button
+                            onClick={() => handleEditSave(cat.id)}
+                            className="p-2 rounded-lg text-[var(--color-accent)] hover:bg-[color-mix(in_srgb,var(--color-accent)_10%,transparent)] transition-colors"
+                            title="Save"
+                          >
+                            <Check size={16} />
+                          </button>
+                          <button
+                            onClick={() => setEditingId(null)}
+                            className="p-2 rounded-lg text-[var(--color-text-secondary)] hover:bg-[color-mix(in_srgb,var(--color-text-secondary)_10%,transparent)] transition-colors"
+                            title="Cancel"
+                          >
+                            <X size={16} />
+                          </button>
+                        </>
+                      ) : (
+                        <>
+                          <button
+                            onClick={() => {
+                              setEditingId(cat.id)
+                              setEditingName(cat.name)
+                            }}
+                            className="p-2 rounded-lg text-[var(--color-text-secondary)] hover:text-[var(--color-accent)] hover:bg-[color-mix(in_srgb,var(--color-accent)_10%,transparent)] transition-colors"
+                            title="Edit Service Name"
+                          >
+                            <Pencil size={16} />
+                          </button>
+                          <button
+                            onClick={() => handleDelete(cat.id)}
+                            className="p-2 rounded-lg text-[var(--color-text-secondary)] hover:text-[var(--tier-warn)] hover:bg-[color-mix(in_srgb,var(--tier-warn)_10%,transparent)] transition-colors"
+                            title="Delete Service"
+                          >
+                            <Trash2 size={16} />
+                          </button>
+                        </>
+                      )}
+                    </div>
                   )}
                 </div>
               ))}

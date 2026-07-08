@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Clock, X, RotateCcw, Ban } from 'lucide-react'
 import { useUpsertInterval, useDeleteInterval } from '../services/useUserIntervals'
+import { useUpdateCategory } from '../services/api'
 import { Button } from '../../components/Button'
 import type { ServiceCategory, UserServiceInterval } from '../../types/database'
 
@@ -14,6 +15,9 @@ interface EditIntervalFormProps {
 export function EditIntervalForm({ vehicleId, category, currentInterval, onClose }: EditIntervalFormProps) {
   const upsertInterval = useUpsertInterval()
   const deleteInterval = useDeleteInterval()
+  const updateCategory = useUpdateCategory()
+
+  const [categoryName, setCategoryName] = useState(category.name)
 
   // Initialize state with current user interval if it exists, otherwise fall back to category defaults
   const [months, setMonths] = useState<string>(
@@ -39,6 +43,10 @@ export function EditIntervalForm({ vehicleId, category, currentInterval, onClose
     if (isIgnored) {
       parsedMonths = -1
       parsedKm = -1
+    }
+
+    if (category.user_id !== null && categoryName.trim() !== category.name) {
+      updateCategory.mutate({ id: category.id, name: categoryName.trim() })
     }
 
     upsertInterval.mutate({
@@ -89,8 +97,18 @@ export function EditIntervalForm({ vehicleId, category, currentInterval, onClose
             <Clock size={24} />
           </div>
           <div>
-            <h2 className="text-xl headline text-[var(--color-text-primary)]">Customize Interval</h2>
-            <p className="text-sm font-medium text-[var(--color-accent)]">{category.name}</p>
+            <h2 className="text-xl headline text-[var(--color-text-primary)] mb-1">Customize Service</h2>
+            {category.user_id !== null ? (
+              <input
+                type="text"
+                value={categoryName}
+                onChange={e => setCategoryName(e.target.value)}
+                className="w-full bg-transparent outline-none border-b border-[var(--color-accent)] text-sm font-medium text-[var(--color-accent)] focus:border-b-2 py-0.5"
+                placeholder="Service Name"
+              />
+            ) : (
+              <p className="text-sm font-medium text-[var(--color-accent)]">{category.name}</p>
+            )}
           </div>
         </div>
 

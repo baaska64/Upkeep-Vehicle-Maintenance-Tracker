@@ -6,6 +6,7 @@ import { useVehicles } from '../vehicles/api'
 import { useVehicleStore } from '../../hooks/useVehicleStore'
 import { useServiceLogs } from '../services/api'
 import { useFuelLogs } from '../fuel/api'
+import { ManageCategoriesForm } from '../services/ManageCategoriesForm'
 import { Card } from '../../components/Card'
 import { Button } from '../../components/Button'
 
@@ -21,6 +22,7 @@ export function SettingsPage() {
   const { data: fuelLogs } = useFuelLogs(selectedVehicle?.id || '')
 
   const [isExporting, setIsExporting] = useState(false)
+  const [showManageServices, setShowManageServices] = useState(false)
 
   const handleSignOut = async () => {
     await supabase.auth.signOut()
@@ -147,6 +149,28 @@ export function SettingsPage() {
           </Card>
         </section>
 
+        {/* Services Management */}
+        <section>
+          <h2 className="text-sm font-semibold uppercase tracking-wide text-[var(--color-text-secondary)] mb-4 ml-1">Service Categories</h2>
+          <Card className="p-6">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6">
+              <div>
+                <h3 className="font-medium text-lg">Manage Services</h3>
+                <p className="text-sm text-[var(--color-text-secondary)] max-w-sm">
+                  Add, edit, or remove custom service categories for your garage.
+                </p>
+              </div>
+              <Button 
+                variant="primary" 
+                onClick={() => setShowManageServices(true)}
+                className="whitespace-nowrap w-full sm:w-auto"
+              >
+                Manage Services
+              </Button>
+            </div>
+          </Card>
+        </section>
+
         {/* Preferences */}
         <section>
           <h2 className="text-sm font-semibold uppercase tracking-wide text-[var(--color-text-secondary)] mb-4 ml-1">App Preferences</h2>
@@ -168,6 +192,10 @@ export function SettingsPage() {
           </Card>
         </section>
       </div>
+
+      {showManageServices && (
+        <ManageCategoriesForm onClose={() => setShowManageServices(false)} />
+      )}
     </div>
   )
 }

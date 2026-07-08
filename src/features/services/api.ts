@@ -185,3 +185,22 @@ export function useDeleteCategory() {
     },
   })
 }
+
+export function useUpdateCategory() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: async ({ id, name }: { id: string, name: string }) => {
+      const { data, error } = await supabase
+        .from('vt_service_categories')
+        .update({ name })
+        .eq('id', id)
+        .select()
+        .single()
+      if (error) throw error
+      return data
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['serviceCategories'] })
+    },
+  })
+}
