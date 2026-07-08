@@ -9,7 +9,8 @@ export default defineConfig({
     react(),
     tailwindcss(),
     VitePWA({
-      registerType: 'prompt',
+      registerType: 'autoUpdate',
+      injectRegister: 'auto',
       includeAssets: ['pwa-192x192.png', 'pwa-512x512.png'],
       manifest: {
         name: 'Upkeep Vehicle Maintenance',
@@ -38,6 +39,9 @@ export default defineConfig({
         ]
       },
       workbox: {
+        cleanupOutdatedCaches: true,
+        clientsClaim: true,
+        skipWaiting: true,
         globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2}'],
         runtimeCaching: [
           {
